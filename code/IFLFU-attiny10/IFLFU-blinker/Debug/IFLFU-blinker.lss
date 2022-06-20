@@ -1,0 +1,415 @@
+
+IFLFU-blinker.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000224  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800040  00800040  00000278  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  00000278  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000002a8  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000030  00000000  00000000  000002e4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000005b6  00000000  00000000  00000314  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 0000043e  00000000  00000000  000008ca  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000002e1  00000000  00000000  00000d08  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000054  00000000  00000000  00000fec  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000321  00000000  00000000  00001040  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    00000288  00000000  00000000  00001361  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000020  00000000  00000000  000015e9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0a c0       	rjmp	.+20     	; 0x16 <__ctors_end>
+   2:	11 c0       	rjmp	.+34     	; 0x26 <__bad_interrupt>
+   4:	10 c0       	rjmp	.+32     	; 0x26 <__bad_interrupt>
+   6:	0f c0       	rjmp	.+30     	; 0x26 <__bad_interrupt>
+   8:	0e c0       	rjmp	.+28     	; 0x26 <__bad_interrupt>
+   a:	0d c0       	rjmp	.+26     	; 0x26 <__bad_interrupt>
+   c:	0c c0       	rjmp	.+24     	; 0x26 <__bad_interrupt>
+   e:	0b c0       	rjmp	.+22     	; 0x26 <__bad_interrupt>
+  10:	0a c0       	rjmp	.+20     	; 0x26 <__bad_interrupt>
+  12:	09 c0       	rjmp	.+18     	; 0x26 <__bad_interrupt>
+  14:	08 c0       	rjmp	.+16     	; 0x26 <__bad_interrupt>
+
+00000016 <__ctors_end>:
+  16:	11 27       	eor	r17, r17
+  18:	1f bf       	out	0x3f, r17	; 63
+  1a:	cf e5       	ldi	r28, 0x5F	; 95
+  1c:	d0 e0       	ldi	r29, 0x00	; 0
+  1e:	de bf       	out	0x3e, r29	; 62
+  20:	cd bf       	out	0x3d, r28	; 61
+  22:	44 d0       	rcall	.+136    	; 0xac <main>
+  24:	fd c0       	rjmp	.+506    	; 0x220 <_exit>
+
+00000026 <__bad_interrupt>:
+  26:	ec cf       	rjmp	.-40     	; 0x0 <__vectors>
+
+00000028 <init_adc>:
+#define PRIME 919
+
+void init_adc()
+{
+	// Initialize ADC
+	ADMUX = 0; //(1 << MUX1); //PB0
+  28:	1b bb       	out	0x1b, r17	; 27
+	ADCSRA = (1<<ADEN)|(1<<ADPS1)|(1<<ADPS1)|(1<<ADPS0);	
+  2a:	43 e8       	ldi	r20, 0x83	; 131
+  2c:	4d bb       	out	0x1d, r20	; 29
+  2e:	08 95       	ret
+
+00000030 <flash_pin_on>:
+}
+
+void flash_pin_on(uint8_t pin)
+{
+	uint8_t mask = 1 << pin;
+  30:	41 e0       	ldi	r20, 0x01	; 1
+  32:	50 e0       	ldi	r21, 0x00	; 0
+  34:	08 2f       	mov	r16, r24
+  36:	01 c0       	rjmp	.+2      	; 0x3a <flash_pin_on+0xa>
+  38:	44 0f       	add	r20, r20
+  3a:	0a 95       	dec	r16
+  3c:	ea f7       	brpl	.-6      	; 0x38 <flash_pin_on+0x8>
+	
+	if ((PORTB & (1 << pin))) //If port b1 is on, turn it off
+  3e:	62 b1       	in	r22, 0x02	; 2
+  40:	70 e0       	ldi	r23, 0x00	; 0
+  42:	02 c0       	rjmp	.+4      	; 0x48 <__SREG__+0x9>
+  44:	75 95       	asr	r23
+  46:	67 95       	ror	r22
+  48:	8a 95       	dec	r24
+  4a:	e2 f7       	brpl	.-8      	; 0x44 <__SREG__+0x5>
+	{
+		PORTB ^= mask;
+  4c:	52 b1       	in	r21, 0x02	; 2
+
+void flash_pin_on(uint8_t pin)
+{
+	uint8_t mask = 1 << pin;
+	
+	if ((PORTB & (1 << pin))) //If port b1 is on, turn it off
+  4e:	60 ff       	sbrs	r22, 0
+  50:	02 c0       	rjmp	.+4      	; 0x56 <__SREG__+0x17>
+	{
+		PORTB ^= mask;
+  52:	45 27       	eor	r20, r21
+  54:	29 c0       	rjmp	.+82     	; 0xa8 <__stack+0x49>
+	}
+	else
+	{
+		
+		PORTB |= mask;
+  56:	54 2b       	or	r21, r20
+  58:	52 b9       	out	0x02, r21	; 2
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  5a:	63 ec       	ldi	r22, 0xC3	; 195
+  5c:	79 e0       	ldi	r23, 0x09	; 9
+  5e:	61 50       	subi	r22, 0x01	; 1
+  60:	70 40       	sbci	r23, 0x00	; 0
+  62:	e9 f7       	brne	.-6      	; 0x5e <__SREG__+0x1f>
+  64:	00 c0       	rjmp	.+0      	; 0x66 <__stack+0x7>
+  66:	00 00       	nop
+		_delay_ms(FLASH_OFF);
+		PORTB ^= mask;
+  68:	52 b1       	in	r21, 0x02	; 2
+  6a:	54 27       	eor	r21, r20
+  6c:	52 b9       	out	0x02, r21	; 2
+  6e:	63 ed       	ldi	r22, 0xD3	; 211
+  70:	70 e3       	ldi	r23, 0x30	; 48
+  72:	61 50       	subi	r22, 0x01	; 1
+  74:	70 40       	sbci	r23, 0x00	; 0
+  76:	e9 f7       	brne	.-6      	; 0x72 <__stack+0x13>
+  78:	00 c0       	rjmp	.+0      	; 0x7a <__stack+0x1b>
+  7a:	00 00       	nop
+		_delay_ms(FLASH_ON);
+		PORTB |= mask;
+  7c:	52 b1       	in	r21, 0x02	; 2
+  7e:	54 2b       	or	r21, r20
+  80:	52 b9       	out	0x02, r21	; 2
+  82:	63 ec       	ldi	r22, 0xC3	; 195
+  84:	79 e0       	ldi	r23, 0x09	; 9
+  86:	61 50       	subi	r22, 0x01	; 1
+  88:	70 40       	sbci	r23, 0x00	; 0
+  8a:	e9 f7       	brne	.-6      	; 0x86 <__stack+0x27>
+  8c:	00 c0       	rjmp	.+0      	; 0x8e <__stack+0x2f>
+  8e:	00 00       	nop
+		_delay_ms(FLASH_OFF);
+		PORTB ^= mask;
+  90:	52 b1       	in	r21, 0x02	; 2
+  92:	54 27       	eor	r21, r20
+  94:	52 b9       	out	0x02, r21	; 2
+  96:	63 ed       	ldi	r22, 0xD3	; 211
+  98:	70 e3       	ldi	r23, 0x30	; 48
+  9a:	61 50       	subi	r22, 0x01	; 1
+  9c:	70 40       	sbci	r23, 0x00	; 0
+  9e:	e9 f7       	brne	.-6      	; 0x9a <__stack+0x3b>
+  a0:	00 c0       	rjmp	.+0      	; 0xa2 <__stack+0x43>
+  a2:	00 00       	nop
+		_delay_ms(FLASH_ON);
+		PORTB |= mask;
+  a4:	52 b1       	in	r21, 0x02	; 2
+  a6:	45 2b       	or	r20, r21
+  a8:	42 b9       	out	0x02, r20	; 2
+  aa:	08 95       	ret
+
+000000ac <main>:
+	}		
+}
+
+int main(void)
+{
+  ac:	cf 93       	push	r28
+  ae:	df 93       	push	r29
+  b0:	00 d0       	rcall	.+0      	; 0xb2 <main+0x6>
+  b2:	00 d0       	rcall	.+0      	; 0xb4 <main+0x8>
+  b4:	00 d0       	rcall	.+0      	; 0xb6 <main+0xa>
+  b6:	cd b7       	in	r28, 0x3d	; 61
+  b8:	de b7       	in	r29, 0x3e	; 62
+	DDRB = (1 << PORTB1) | (1 << PORTB2); //Pin 1 and 2 as outputs
+  ba:	46 e0       	ldi	r20, 0x06	; 6
+  bc:	41 b9       	out	0x01, r20	; 1
+	
+	init_adc();
+  be:	b4 df       	rcall	.-152    	; 0x28 <init_adc>
+	
+	ADCSRA |= (1<<ADSC);
+  c0:	ee 9a       	sbi	0x1d, 6	; 29
+	while(ADCSRA & (1<<ADSC));
+  c2:	ee 99       	sbic	0x1d, 6	; 29
+  c4:	fe cf       	rjmp	.-4      	; 0xc2 <main+0x16>
+	
+	uint32_t rndVal = ADCL; //PRIME;
+  c6:	49 b3       	in	r20, 0x19	; 25
+  c8:	50 e0       	ldi	r21, 0x00	; 0
+  ca:	60 e0       	ldi	r22, 0x00	; 0
+  cc:	70 e0       	ldi	r23, 0x00	; 0
+  ce:	b7 2f       	mov	r27, r23
+  d0:	a6 2f       	mov	r26, r22
+  d2:	95 2f       	mov	r25, r21
+  d4:	84 2f       	mov	r24, r20
+  d6:	82 5d       	subi	r24, 0xD2	; 210
+  d8:	98 4f       	sbci	r25, 0xF8	; 248
+  da:	af 4f       	sbci	r26, 0xFF	; 255
+  dc:	bf 4f       	sbci	r27, 0xFF	; 255
+  de:	cf 5f       	subi	r28, 0xFF	; 255
+  e0:	df 4f       	sbci	r29, 0xFF	; 255
+  e2:	89 93       	st	Y+, r24
+  e4:	99 93       	st	Y+, r25
+  e6:	a9 93       	st	Y+, r26
+  e8:	b8 83       	st	Y, r27
+  ea:	c4 50       	subi	r28, 0x04	; 4
+  ec:	d0 40       	sbci	r29, 0x00	; 0
+	uint8_t target1_count = 0;
+
+    while (1) 
+    {	
+		//Sudo random time generator using a prime number. It's just a very long pattern.
+		target0 = (rndVal % 5) + 1; //random-ish number between 1 and 6
+  ee:	cf 5f       	subi	r28, 0xFF	; 255
+  f0:	df 4f       	sbci	r29, 0xFF	; 255
+  f2:	49 91       	ld	r20, Y+
+  f4:	59 91       	ld	r21, Y+
+  f6:	69 91       	ld	r22, Y+
+  f8:	78 81       	ld	r23, Y
+  fa:	c4 50       	subi	r28, 0x04	; 4
+  fc:	d0 40       	sbci	r29, 0x00	; 0
+  fe:	4e 52       	subi	r20, 0x2E	; 46
+ 100:	57 40       	sbci	r21, 0x07	; 7
+ 102:	61 0b       	sbc	r22, r17
+ 104:	71 0b       	sbc	r23, r17
+ 106:	97 2f       	mov	r25, r23
+ 108:	86 2f       	mov	r24, r22
+ 10a:	75 2f       	mov	r23, r21
+ 10c:	64 2f       	mov	r22, r20
+ 10e:	25 e0       	ldi	r18, 0x05	; 5
+ 110:	30 e0       	ldi	r19, 0x00	; 0
+ 112:	40 e0       	ldi	r20, 0x00	; 0
+ 114:	50 e0       	ldi	r21, 0x00	; 0
+ 116:	5d d0       	rcall	.+186    	; 0x1d2 <__udivmodsi4>
+ 118:	31 e0       	ldi	r19, 0x01	; 1
+ 11a:	36 0f       	add	r19, r22
+		rndVal += PRIME;
+		target1 = (rndVal % 4) + 1; //random-ish number between 1 and 5
+ 11c:	cf 5f       	subi	r28, 0xFF	; 255
+ 11e:	df 4f       	sbci	r29, 0xFF	; 255
+ 120:	98 81       	ld	r25, Y
+ 122:	c1 50       	subi	r28, 0x01	; 1
+ 124:	d0 40       	sbci	r29, 0x00	; 0
+ 126:	97 59       	subi	r25, 0x97	; 151
+ 128:	93 70       	andi	r25, 0x03	; 3
+ 12a:	9f 5f       	subi	r25, 0xFF	; 255
+ 12c:	ca 5f       	subi	r28, 0xFA	; 250
+ 12e:	df 4f       	sbci	r29, 0xFF	; 255
+ 130:	98 83       	st	Y, r25
+ 132:	c6 50       	subi	r28, 0x06	; 6
+ 134:	d0 40       	sbci	r29, 0x00	; 0
+		rndVal += PRIME;
+		
+		target0_count = 0;
+ 136:	cb 5f       	subi	r28, 0xFB	; 251
+ 138:	df 4f       	sbci	r29, 0xFF	; 255
+ 13a:	18 83       	st	Y, r17
+ 13c:	c5 50       	subi	r28, 0x05	; 5
+ 13e:	d0 40       	sbci	r29, 0x00	; 0
+		target1_count = 0;
+		
+		while(target0_count <= target0 || target1_count <= target1)
+		{
+			if (target0_count == target0)
+ 140:	cb 5f       	subi	r28, 0xFB	; 251
+ 142:	df 4f       	sbci	r29, 0xFF	; 255
+ 144:	a8 81       	ld	r26, Y
+ 146:	c5 50       	subi	r28, 0x05	; 5
+ 148:	d0 40       	sbci	r29, 0x00	; 0
+ 14a:	3a 13       	cpse	r19, r26
+ 14c:	02 c0       	rjmp	.+4      	; 0x152 <main+0xa6>
+			{
+				flash_pin_on(PORTB1);				
+ 14e:	81 e0       	ldi	r24, 0x01	; 1
+ 150:	6f df       	rcall	.-290    	; 0x30 <flash_pin_on>
+			}
+			
+			if (target1_count == target1)
+ 152:	ca 5f       	subi	r28, 0xFA	; 250
+ 154:	df 4f       	sbci	r29, 0xFF	; 255
+ 156:	b8 81       	ld	r27, Y
+ 158:	c6 50       	subi	r28, 0x06	; 6
+ 15a:	d0 40       	sbci	r29, 0x00	; 0
+ 15c:	cb 5f       	subi	r28, 0xFB	; 251
+ 15e:	df 4f       	sbci	r29, 0xFF	; 255
+ 160:	48 81       	ld	r20, Y
+ 162:	c5 50       	subi	r28, 0x05	; 5
+ 164:	d0 40       	sbci	r29, 0x00	; 0
+ 166:	b4 13       	cpse	r27, r20
+ 168:	02 c0       	rjmp	.+4      	; 0x16e <main+0xc2>
+			{
+				flash_pin_on(PORTB2);							
+ 16a:	82 e0       	ldi	r24, 0x02	; 2
+ 16c:	61 df       	rcall	.-318    	; 0x30 <flash_pin_on>
+			}
+			
+			target0_count++;
+ 16e:	cb 5f       	subi	r28, 0xFB	; 251
+ 170:	df 4f       	sbci	r29, 0xFF	; 255
+ 172:	58 81       	ld	r21, Y
+ 174:	c5 50       	subi	r28, 0x05	; 5
+ 176:	d0 40       	sbci	r29, 0x00	; 0
+ 178:	5f 5f       	subi	r21, 0xFF	; 255
+ 17a:	cb 5f       	subi	r28, 0xFB	; 251
+ 17c:	df 4f       	sbci	r29, 0xFF	; 255
+ 17e:	58 83       	st	Y, r21
+ 180:	c5 50       	subi	r28, 0x05	; 5
+ 182:	d0 40       	sbci	r29, 0x00	; 0
+ 184:	6f e3       	ldi	r22, 0x3F	; 63
+ 186:	7d e0       	ldi	r23, 0x0D	; 13
+ 188:	83 e0       	ldi	r24, 0x03	; 3
+ 18a:	61 50       	subi	r22, 0x01	; 1
+ 18c:	70 40       	sbci	r23, 0x00	; 0
+ 18e:	80 40       	sbci	r24, 0x00	; 0
+ 190:	e1 f7       	brne	.-8      	; 0x18a <main+0xde>
+ 192:	00 c0       	rjmp	.+0      	; 0x194 <main+0xe8>
+ 194:	00 00       	nop
+		rndVal += PRIME;
+		
+		target0_count = 0;
+		target1_count = 0;
+		
+		while(target0_count <= target0 || target1_count <= target1)
+ 196:	35 17       	cp	r19, r21
+ 198:	98 f6       	brcc	.-90     	; 0x140 <main+0x94>
+ 19a:	ca 5f       	subi	r28, 0xFA	; 250
+ 19c:	df 4f       	sbci	r29, 0xFF	; 255
+ 19e:	98 81       	ld	r25, Y
+ 1a0:	c6 50       	subi	r28, 0x06	; 6
+ 1a2:	d0 40       	sbci	r29, 0x00	; 0
+ 1a4:	95 17       	cp	r25, r21
+ 1a6:	60 f6       	brcc	.-104    	; 0x140 <main+0x94>
+ 1a8:	cf 5f       	subi	r28, 0xFF	; 255
+ 1aa:	df 4f       	sbci	r29, 0xFF	; 255
+ 1ac:	49 91       	ld	r20, Y+
+ 1ae:	59 91       	ld	r21, Y+
+ 1b0:	69 91       	ld	r22, Y+
+ 1b2:	78 81       	ld	r23, Y
+ 1b4:	c4 50       	subi	r28, 0x04	; 4
+ 1b6:	d0 40       	sbci	r29, 0x00	; 0
+ 1b8:	42 5d       	subi	r20, 0xD2	; 210
+ 1ba:	58 4f       	sbci	r21, 0xF8	; 248
+ 1bc:	6f 4f       	sbci	r22, 0xFF	; 255
+ 1be:	7f 4f       	sbci	r23, 0xFF	; 255
+ 1c0:	cf 5f       	subi	r28, 0xFF	; 255
+ 1c2:	df 4f       	sbci	r29, 0xFF	; 255
+ 1c4:	49 93       	st	Y+, r20
+ 1c6:	59 93       	st	Y+, r21
+ 1c8:	69 93       	st	Y+, r22
+ 1ca:	78 83       	st	Y, r23
+ 1cc:	c4 50       	subi	r28, 0x04	; 4
+ 1ce:	d0 40       	sbci	r29, 0x00	; 0
+ 1d0:	8e cf       	rjmp	.-228    	; 0xee <main+0x42>
+
+000001d2 <__udivmodsi4>:
+ 1d2:	a1 e2       	ldi	r26, 0x21	; 33
+ 1d4:	1a 2f       	mov	r17, r26
+ 1d6:	aa 1b       	sub	r26, r26
+ 1d8:	bb 1b       	sub	r27, r27
+ 1da:	ea 2f       	mov	r30, r26
+ 1dc:	fb 2f       	mov	r31, r27
+ 1de:	0d c0       	rjmp	.+26     	; 0x1fa <__udivmodsi4_ep>
+
+000001e0 <__udivmodsi4_loop>:
+ 1e0:	aa 1f       	adc	r26, r26
+ 1e2:	bb 1f       	adc	r27, r27
+ 1e4:	ee 1f       	adc	r30, r30
+ 1e6:	ff 1f       	adc	r31, r31
+ 1e8:	a2 17       	cp	r26, r18
+ 1ea:	b3 07       	cpc	r27, r19
+ 1ec:	e4 07       	cpc	r30, r20
+ 1ee:	f5 07       	cpc	r31, r21
+ 1f0:	20 f0       	brcs	.+8      	; 0x1fa <__udivmodsi4_ep>
+ 1f2:	a2 1b       	sub	r26, r18
+ 1f4:	b3 0b       	sbc	r27, r19
+ 1f6:	e4 0b       	sbc	r30, r20
+ 1f8:	f5 0b       	sbc	r31, r21
+
+000001fa <__udivmodsi4_ep>:
+ 1fa:	66 1f       	adc	r22, r22
+ 1fc:	77 1f       	adc	r23, r23
+ 1fe:	88 1f       	adc	r24, r24
+ 200:	99 1f       	adc	r25, r25
+ 202:	1a 95       	dec	r17
+ 204:	69 f7       	brne	.-38     	; 0x1e0 <__udivmodsi4_loop>
+ 206:	60 95       	com	r22
+ 208:	70 95       	com	r23
+ 20a:	80 95       	com	r24
+ 20c:	90 95       	com	r25
+ 20e:	26 2f       	mov	r18, r22
+ 210:	37 2f       	mov	r19, r23
+ 212:	48 2f       	mov	r20, r24
+ 214:	59 2f       	mov	r21, r25
+ 216:	6a 2f       	mov	r22, r26
+ 218:	7b 2f       	mov	r23, r27
+ 21a:	8e 2f       	mov	r24, r30
+ 21c:	9f 2f       	mov	r25, r31
+ 21e:	08 95       	ret
+
+00000220 <_exit>:
+ 220:	f8 94       	cli
+
+00000222 <__stop_program>:
+ 222:	ff cf       	rjmp	.-2      	; 0x222 <__stop_program>
