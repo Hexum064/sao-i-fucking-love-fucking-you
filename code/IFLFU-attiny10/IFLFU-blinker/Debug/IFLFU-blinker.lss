@@ -185,6 +185,10 @@ int main(void)
 	DDRB = (1 << PORTB1) | (1 << PORTB2); //Pin 1 and 2 as outputs
   ba:	46 e0       	ldi	r20, 0x06	; 6
   bc:	41 b9       	out	0x01, r20	; 1
+		
+	}
+
+#endif
 	
 	init_adc();
   be:	b4 df       	rcall	.-152    	; 0x28 <init_adc>

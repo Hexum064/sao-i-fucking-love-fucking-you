@@ -40,9 +40,11 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.pickit4</avrtool>
-    <avrtoolinterface>TPI</avrtoolinterface>
-    <avrtoolserialnumber>BUR184881957</avrtoolserialnumber>
+    <avrtool>custom</avrtool>
+    <avrtoolinterface>
+    </avrtoolinterface>
+    <avrtoolserialnumber>
+    </avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9003</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_pickit4>
       <ToolOptions>
@@ -65,6 +67,18 @@
       </ToolNumber>
       <ToolName xmlns="">Simulator</ToolName>
     </com_atmel_avrdbg_tool_simulator>
+    <custom>
+      <ToolOptions>
+        <InterfaceProperties>
+        </InterfaceProperties>
+        <InterfaceName>
+        </InterfaceName>
+      </ToolOptions>
+      <ToolType>custom</ToolType>
+      <ToolNumber>
+      </ToolNumber>
+      <ToolName>Custom Programming Tool</ToolName>
+    </custom>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>

@@ -10,6 +10,7 @@
 #include <util/delay.h>
 
 //#define _DEBUG
+//#define _TEST
 
 #define INTERVAL 1000
 #define FLASH_OFF 10
@@ -49,6 +50,19 @@ void flash_pin_on(uint8_t pin)
 int main(void)
 {
 	DDRB = (1 << PORTB1) | (1 << PORTB2); //Pin 1 and 2 as outputs
+	
+#ifdef _TEST
+
+	while(1)
+	{
+		PORTB = 0xFF;
+		_delay_ms(500);
+		PORTB = 0;
+		_delay_ms(500);
+		
+	}
+
+#endif
 	
 	init_adc();
 	
